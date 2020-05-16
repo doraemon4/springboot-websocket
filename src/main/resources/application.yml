@@ -1,0 +1,9 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /chat
+spring:
+  resources:
+    static-locations: classpath:/
+  mvc:
+    static-path-pattern: /**
