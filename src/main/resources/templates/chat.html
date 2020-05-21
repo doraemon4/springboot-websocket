@@ -17,11 +17,15 @@
     <div class="mdui-toolbar mdui-color-theme">
         <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
         <span class="mdui-typo-title">Chat</span>
+        欢迎：<span id="username" class="mdui-typo-title" th:text="${username}"></span>
         <div class="mdui-toolbar-spacer"></div>
+
         <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
         <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
         <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">more_vert</i></a>
     </div>
+
+
 </div>
 
 <div>
@@ -54,11 +58,11 @@
                     <span class="mdui-chip-title chat-num">0</span>
                 </div>
                 <div class="message-container">
-
                 </div>
             </div>
 
         </div>
+        <input th:value="${message}" id="msg" type="hidden"/>
     </div>
 </div>
 
@@ -74,9 +78,13 @@
 </script>
 
 <script type="application/javascript">
+    if($("#msg").val()!=''){
+        alert($("#msg").val());
+    }
+
     var websocket = null;
     if ('WebSocket' in window) {
-        websocket = new WebSocket('ws://localhost:8090/chat/webSocket');
+        websocket = new WebSocket('ws://localhost:8090/chat/webSocket/'+$("#username").text());
 
     } else {
         alert('该浏览器不支持websocket');

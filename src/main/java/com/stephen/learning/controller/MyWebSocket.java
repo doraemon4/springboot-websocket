@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -16,14 +18,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @date 2020/5/16 11:49
  */
 @Component
-@ServerEndpoint("/webSocket")
+@ServerEndpoint("/webSocket/{username}")
 @Slf4j
 public class MyWebSocket {
     //初始化当前在线人数
     private static int onlineCount = 0;
 
     //保存每个客户端对应的MyWebsocket对象
-    private static CopyOnWriteArraySet<MyWebSocket> webSockets = new CopyOnWriteArraySet<MyWebSocket>();
+    public static CopyOnWriteArraySet<MyWebSocket> webSockets = new CopyOnWriteArraySet<MyWebSocket>();
+
+    public static ConcurrentHashMap<String,Session> sessions = new ConcurrentHashMap<String, Session>();
 
     //保存客户端的连接
     private Session session;
@@ -31,10 +35,12 @@ public class MyWebSocket {
     private MessageVO messageVO = new MessageVO();
 
     @OnOpen
-    public void onOpen(Session session){
+    public void onOpen(Session session, @PathParam("username")String userName){
         this.session = session;
         webSockets.add(this);
+        sessions.put(userName,session);
         messageVO.setType(1);
+        messageVO.setFrom(userName);
         messageVO.setUserNum(webSockets.size());
         messageVO.setMessage("有新的连接");
         //发送消息
@@ -49,9 +55,9 @@ public class MyWebSocket {
     }
 
     @OnClose
-    public void onClose(){
+    public void onClose(@PathParam("username")String userName){
         webSockets.remove(this);
-
+        sessions.remove(userName);
         messageVO.setMessage("有用户离开");
         messageVO.setType(2);
         messageVO.setUserNum(webSockets.size());
